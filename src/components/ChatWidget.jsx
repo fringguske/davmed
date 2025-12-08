@@ -49,31 +49,20 @@ export const ChatWidget = ({ isOpen, onClose }) => {
         setIsLoading(true);
 
         try {
-            // NOTE: Ensure your .env file has the key prefixed with VITE_ so the client can read it.
-            // Example: VITE_GPT_MINI_KEY=your_key_here
-            const apiKey = import.meta.env.VITE_GPT_MINI_KEY;
-
-            if (!apiKey) {
-                // Warning only logged, to avoid breaking UI if not set yet (though logic will fail below)
-                console.warn("VITE_GPT_MINI_KEY missing.");
-            }
-
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            // Call the Vercel Serverless Function (proxy)
+            // This hides the API key from the client
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                    'HTTP-Referer': window.location.href, // Site URL for rankings on openrouter.ai
-                    'X-Title': 'INLINE Dental Services', // Site title for rankings on openrouter.ai
                 },
                 body: JSON.stringify({
-                    model: "openai/gpt-5", // Using model requested by user
+                    model: "openai/gpt-5", // Request specific model
                     messages: [
                         { role: 'system', content: SYSTEM_PROMPT },
                         ...messages,
                         userMessage
                     ],
-                    // temperature: 0.7, 
                 })
             });
 
